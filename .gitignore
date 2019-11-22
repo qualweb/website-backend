@@ -3,3 +3,5 @@
 /.yalc
 yalc.lock
 package-lock.json
+.idea
+.idea/*
