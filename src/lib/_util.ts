@@ -33,10 +33,7 @@ function transformEarlReport(earlReport: EarlReport): Array<any> {
 }
 
 function verifyUrl(url: string): string {
-  if(url.startsWith('http://')) {
-    return url;
-  }
-  if(url.startsWith('https://')) {
+  if(url.startsWith('http://') || url.startsWith('https://')) {
     return url;
   }
 

@@ -3,7 +3,7 @@ import { UrlModel } from './Url';
 
 const qualweb = require('@qualweb/core');
 
-import { transformEarlReport, verifyUrl, normalizeUri } from '../lib/_util';
+import { /*transformEarlReport,*/ verifyUrl, normalizeUri } from '../lib/_util';
 
 export const EvaluationSchema: Schema = new Schema({
   json: String,
@@ -72,6 +72,9 @@ export const EvaluationResolver = {
 
     const earlReport = await qualweb.generateEarlReport();
 
+    delete evaluation[0].system.page.dom.source.html.parsed;
+    delete evaluation[0].system.page.dom.stylesheets;
+
     const json = JSON.stringify(evaluation[0]);
 
     let url = await UrlModel.findOne({uri: args.uri});
@@ -84,7 +87,7 @@ export const EvaluationResolver = {
       belongs_to: url._id,
       json,
       context: earlReport.context,
-      graph: transformEarlReport(earlReport[0])
+      //graph: transformEarlReport(earlReport[0])
     });
 
     return savedEvaluation;
