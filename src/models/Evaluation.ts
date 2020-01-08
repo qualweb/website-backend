@@ -72,7 +72,7 @@ export const EvaluationResolver = {
 
     const earlReport = await qualweb.generateEarlReport();
 
-    const json = JSON.stringify(evaluation);
+    const json = JSON.stringify(evaluation[0]);
 
     let url = await UrlModel.findOne({uri: args.uri});
 
@@ -84,7 +84,7 @@ export const EvaluationResolver = {
       belongs_to: url._id,
       json,
       context: earlReport.context,
-      graph: transformEarlReport(earlReport)
+      graph: transformEarlReport(earlReport[0])
     });
 
     return savedEvaluation;
