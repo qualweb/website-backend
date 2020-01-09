@@ -22,11 +22,10 @@
   "author": "João Afonso Vicente",
   "license": "ISC",
   "dependencies": {
-    "@qualweb/core": "^0.3.3",
-    "@qualweb/util": "^0.1.11",
+    "@qualweb/core": "^0.3.4",
     "apollo-server": "^2.9.15",
     "bluebird": "^3.7.2",
-    "graphql": "^14.5.4",
+    "graphql": "^14.5.8",
     "lodash": "^4.17.15",
     "mongoose": "^5.8.6",
     "request-promise": "^4.2.5"
