@@ -28,7 +28,6 @@
     "@nestjs/websockets": "^7.0.3",
     "@qualweb/act-rules": "^0.3.31",
     "@qualweb/best-practices": "^0.3.1",
-    "@qualweb/core": "^0.3.16",
     "@qualweb/css-techniques": "^0.3.3",
     "@qualweb/html-techniques": "^0.3.0",
     "compression": "^1.7.4",
