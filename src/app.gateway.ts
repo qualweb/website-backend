@@ -117,7 +117,7 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
         }
       };
 
-      const parsed = evaluator.page.dom.source.html.parsed
+      const parsed = evaluator.page.dom.source.html.parsed;
       delete evaluator.page.dom.source.html.parsed;
       delete evaluator.page.dom.stylesheets;
 
@@ -153,7 +153,7 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
       await page.close();
     } catch (err) {
       console.error(err);
-      client.emit('error', err.toString());
+      client.emit('errorHandle', err.toString());
     }
   }
 }
