@@ -66,7 +66,7 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   @SubscribeMessage('evaluate')
   async startEvaluation(@MessageBody() data: any, @ConnectedSocket() client: Socket): Promise<any> {
-    const url = this.normalizeUrl(decodeURIComponent(data));
+    const url = this.normalizeUrl(decodeURIComponent(data.url));
 
     try {
       const { sourceHtml, page, stylesheets, mappedDOM } = await getDom(this.browser, url);
@@ -126,25 +126,33 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
       evaluator.page.dom.source.html.parsed = parsed;
       evaluator.page.dom.stylesheets = stylesheets;
 
-      client.emit('moduleStart', 'act-rules');
-      const act = new ACTRules();
-      const actReport = await act.execute(sourceHtml, page, stylesheets);
-      client.emit('moduleEnd', { module: 'act-rules',  report: actReport });
+      if(data.modules['act']) {
+        client.emit('moduleStart', 'act-rules');
+        const act = new ACTRules();
+        const actReport = await act.execute(sourceHtml, page, stylesheets);
+        client.emit('moduleEnd', {module: 'act-rules', report: actReport});
+      }
 
-      client.emit('moduleStart', 'html-techniques');
-      const html = new HTMLTechniques();
-      const htmlReport = await html.execute(page);
-      client.emit('moduleEnd', { module: 'html-techniques', report: htmlReport });
+      if(data.modules['html']) {
+        client.emit('moduleStart', 'html-techniques');
+        const html = new HTMLTechniques();
+        const htmlReport = await html.execute(page);
+        client.emit('moduleEnd', {module: 'html-techniques', report: htmlReport});
+      }
 
-      client.emit('moduleStart', 'css-techniques');
-      const css = new CSSTechniques();
-      const cssReport = await css.execute(stylesheets, mappedDOM);
-      client.emit('moduleEnd', { module: 'css-techniques', report: cssReport });
+      if(data.modules['css']) {
+        client.emit('moduleStart', 'css-techniques');
+        const css = new CSSTechniques();
+        const cssReport = await css.execute(stylesheets, mappedDOM);
+        client.emit('moduleEnd', {module: 'css-techniques', report: cssReport});
+      }
 
-      client.emit('moduleStart', 'best-practices');
-      const bp = new BestPractices();
-      const bpReport = await bp.execute(page, stylesheets);
-      client.emit('moduleEnd', { module: 'best-practices', report: bpReport });
+      if(data.modules['bp']) {
+        client.emit('moduleStart', 'best-practices');
+        const bp = new BestPractices();
+        const bpReport = await bp.execute(page, stylesheets);
+        client.emit('moduleEnd', {module: 'best-practices', report: bpReport});
+      }
 
       client.emit('prepare-data', true);
 
