@@ -26,7 +26,7 @@
     "@nestjs/platform-express": "^7.0.0",
     "@nestjs/platform-socket.io": "^7.0.3",
     "@nestjs/websockets": "^7.0.3",
-    "@qualweb/act-rules": "^0.3.34",
+    "@qualweb/act-rules": "^0.3.37",
     "@qualweb/best-practices": "^0.3.3",
     "@qualweb/css-techniques": "^0.3.6",
     "@qualweb/html-techniques": "^0.3.4",
