@@ -1,9 +1,10 @@
-import * as constants from './constants';
+//import * as constants from './constants';
 import * as clone from "lodash.clone";
 import * as css from "css";
 import * as htmlparser2 from "htmlparser2";
-import * as request from "request";
+//import * as request from "request";
 import * as CSSselect from 'css-select';
+import * as puppeteer from 'puppeteer';
 
 async function parseStylesheets(plainStylesheets) {
   
@@ -18,7 +19,8 @@ async function parseStylesheets(plainStylesheets) {
     }
     return stylesheets;
 }
-function getRequestData(headers) {
+
+/*function getRequestData(headers) {
   return new Promise((resolve, reject) => {
     request(headers, (error, response, body) => {
       if (error) {
@@ -32,7 +34,7 @@ function getRequestData(headers) {
       }
     });
   });
-}
+}*/
 
 
 function parseHTML(html) {
@@ -54,15 +56,17 @@ function parseHTML(html) {
     return parsed;
 }
 
-async function getSourceHTML(url, options) {
-    const headers = {
+//async function getSourceHTML(url, options) {
+async function getSourceHTML(html: string) {
+    /*const headers = {
         'url': url,
         'headers': {
             'User-Agent': options ? options.userAgent ? options.userAgent : options.mobile ? constants.DEFAULT_MOBILE_USER_AGENT : constants.DEFAULT_DESKTOP_USER_AGENT : constants.DEFAULT_DESKTOP_USER_AGENT
         }
     };
     const data = await getRequestData(headers);
-    const sourceHTML = data['body'].toString().trim();
+    const sourceHTML = data['body'].toString().trim();*/
+    const sourceHTML: string = html.trim();
     const parsedHTML = parseHTML(sourceHTML);
     const elements = CSSselect('*', parsedHTML);
     let title = '';
@@ -152,7 +156,8 @@ function analyseAST(dom, cssObject, parentType, mappedDOM) {
   }
 
 export async function getDom(browser,url) {
-    const page = await browser.newPage();
+    //fixme - this comments are getDom without puppeteer
+    /*const page = await browser.newPage();
     const plainStylesheets = {};
     page.on('response', async response => {
         if (response.request().resourceType() === 'stylesheet') {
@@ -185,7 +190,49 @@ export async function getDom(browser,url) {
         for (const item of cookedStew || [])
             mappedDOM[item['startIndex']] = item;
 
-    await mapCSSElements(sourceHtml.html.parsed, stylesheets, mappedDOM);
+    await mapCSSElements(sourceHtml.html.parsed, stylesheets, mappedDOM);*/
 
-    return { sourceHtml, page, stylesheets, mappedDOM };
+    let page: puppeteer.Page | undefined = undefined;
+    page = await browser.newPage();
+
+    const plainStylesheets: any = {};
+    page.on('response', async response => {
+        if (response.request().resourceType() === 'stylesheet') {
+            const responseUrl = response.url();
+            const content = await response.text();
+            plainStylesheets[responseUrl] = content;
+        }
+    });
+
+    const response = await page.goto(url, {
+        timeout: 0,
+        waitUntil: ['networkidle2', 'domcontentloaded']
+    });
+
+    if (response) {
+        const sourceHtml = await getSourceHTML(await response.text());
+        const styles = CSSselect('style', sourceHtml.html.parsed);
+        let k = 0;
+        for (const style of styles || []) {
+            if (style['children'] && style['children'][0]) {
+                plainStylesheets['html' + k] = style['children'][0]['data'];
+            }
+            k++;
+        }
+        const stylesheets = await parseStylesheets(plainStylesheets);
+        const mappedDOM = {};
+        const cookedStew = CSSselect('*', sourceHtml.html.parsed);
+
+        if (cookedStew.length > 0) {
+            for (const item of cookedStew || []) {
+                if (item['startIndex']) {
+                    mappedDOM[item['startIndex']] = item;
+                }
+            }
+        }
+        await mapCSSElements(sourceHtml.html.parsed, stylesheets, mappedDOM);
+        return {sourceHtml, page, stylesheets, mappedDOM};
+    } else {
+        throw new Error('Error trying to reach webpage.');
+    }
 }

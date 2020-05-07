@@ -13,7 +13,7 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   @WebSocketServer()
   server: Server;
-  browser: puppeteer.Browser;
+  browser: puppeteer.Browser | null = null;;
 
   constructor() {
     this.init();
@@ -66,11 +66,11 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   @SubscribeMessage('evaluate')
   async startEvaluation(@MessageBody() data: any, @ConnectedSocket() client: Socket): Promise<any> {
-    const url = this.normalizeUrl(decodeURIComponent(data.url));
+    //const url = this.normalizeUrl(decodeURIComponent(data.url));
+    const url = decodeURIComponent(data.url);
 
     try {
       const { sourceHtml, page, stylesheets, mappedDOM } = await getDom(this.browser, url);
-
       const [pageUrl, plainHtml, pageTitle, elements, browserUserAgent] = await Promise.all([
         page.url(),
         page.evaluate(() => {
@@ -157,7 +157,7 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
       client.emit('prepare-data', true);
 
       client.emit('evaluationEnd', true);
-      
+
       await page.close();
     } catch (err) {
       console.error(err);
