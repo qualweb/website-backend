@@ -13,20 +13,23 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   @WebSocketServer()
   server: Server;
-  browser: puppeteer.Browser | null = null;;
+  browser: puppeteer.Browser | null = null;
+  htmlTechniques: string[] = [];
 
   constructor() {
     this.init();
   }
 
   private async init() {
-    this.browser = await puppeteer.launch(
-      {
-        ignoreHTTPSErrors: true,
-        headless: true,
-        args: ['--no-sandbox']
+    this.browser = await puppeteer.launch();
+
+    let noHtml = [12, 18, 20, 21, 31, 35, 36];
+    for(let i = 1; i <= 43; i++){
+      if(!noHtml.includes(i)){
+        this.htmlTechniques.push('QW-HTML-T'.concat(i.toString()));
       }
-    );
+    }
+
   } 
 
   async handleConnection(){
@@ -68,6 +71,8 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
   async startEvaluation(@MessageBody() data: any, @ConnectedSocket() client: Socket): Promise<any> {
     //const url = this.normalizeUrl(decodeURIComponent(data.url));
     const url = decodeURIComponent(data.url);
+
+
 
     try {
       const { sourceHtml, page, stylesheets, mappedDOM } = await getDom(this.browser, url);
@@ -135,7 +140,7 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
       if(data.modules['html']) {
         client.emit('moduleStart', 'html-techniques');
-        const html = new HTMLTechniques();
+        const html = new HTMLTechniques({techniques: this.htmlTechniques});
         const htmlReport = await html.execute(page);
         client.emit('moduleEnd', {module: 'html-techniques', report: htmlReport});
       }
