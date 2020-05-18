@@ -21,15 +21,15 @@
     "test:e2e": "jest --config ./test/jest-e2e.json"
   },
   "dependencies": {
+    "@qualweb/act-rules": "^0.4.1",
+    "@qualweb/best-practices": "^0.4.1",
+    "@qualweb/html-techniques": "^0.4.1",
     "@nestjs/common": "^7.0.0",
     "@nestjs/core": "^7.0.0",
     "@nestjs/platform-express": "^7.0.0",
     "@nestjs/platform-socket.io": "^7.0.3",
     "@nestjs/websockets": "^7.0.3",
-    "@qualweb/act-rules": "^0.3.37",
-    "@qualweb/best-practices": "^0.3.3",
     "@qualweb/css-techniques": "^0.3.6",
-    "@qualweb/html-techniques": "^0.3.4",
     "compression": "^1.7.4",
     "css": "^2.2.4",
     "css-select": "^2.1.0",

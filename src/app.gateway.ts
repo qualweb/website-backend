@@ -3,10 +3,10 @@ import { Server, Socket } from 'socket.io';
 import * as puppeteer from 'puppeteer';
 import { randomBytes } from 'crypto';
 import { getDom } from './getDom';
-import { ACTRules } from '@qualweb/act-rules';
-import { HTMLTechniques } from '@qualweb/html-techniques';
 import { CSSTechniques } from '@qualweb/css-techniques';
-import { BestPractices } from '@qualweb/best-practices';
+import { BrowserUtils } from '@qualweb/util';
+let endpoint = 'http://194.117.20.242/validate/';
+
 
 @WebSocketGateway()
 export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
@@ -24,33 +24,33 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
     this.browser = await puppeteer.launch();
 
     let noHtml = [12, 18, 20, 21, 31, 35, 36];
-    for(let i = 1; i <= 43; i++){
-      if(!noHtml.includes(i)){
+    for (let i = 1; i <= 43; i++) {
+      if (!noHtml.includes(i)) {
         this.htmlTechniques.push('QW-HTML-T'.concat(i.toString()));
       }
     }
 
-  } 
-
-  async handleConnection(){
-    
   }
 
-  async handleDisconnect(){
-    
+  async handleConnection() {
+
+  }
+
+  async handleDisconnect() {
+
   }
 
   private parseUrl(url: string, pageUrl: string): any {
     const inputUrl = url;
     const completeUrl = pageUrl;
-  
+
     const protocol = completeUrl.split('://')[0];
     const domainName = completeUrl.split('/')[2];
-  
+
     const tmp = domainName.split('.');
-    const domain = tmp[tmp.length-1];
+    const domain = tmp[tmp.length - 1];
     const uri = completeUrl.split('.' + domain)[1];
-  
+
     const parsedUrl = {
       inputUrl,
       protocol,
@@ -59,7 +59,7 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
       uri,
       completeUrl
     };
-  
+
     return parsedUrl;
   }
 
@@ -85,7 +85,7 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
         page.$$('*'),
         page.browser().userAgent()
       ]);
-    
+
       const processedHtml = {
         html: {
           plain: plainHtml
@@ -93,9 +93,9 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
         title: pageTitle,
         elementCount: elements.length
       };
-    
+
       const viewport = page.viewport();
-    
+
       const evaluator = {
         name: 'QualWeb',
         description: 'QualWeb is an automatic accessibility evaluator for webpages.',
@@ -131,32 +131,83 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
       evaluator.page.dom.source.html.parsed = parsed;
       evaluator.page.dom.stylesheets = stylesheets;
 
-      if(data.modules['act']) {
+      await page.addScriptTag({
+        path: require.resolve('@qualweb/qw-page').replace('index.js', 'qwPage.js')
+      })
+
+
+      if (data.modules['act']) {
         client.emit('moduleStart', 'act-rules');
-        const act = new ACTRules();
-        const actReport = await act.execute(sourceHtml, page, stylesheets);
-        client.emit('moduleEnd', {module: 'act-rules', report: actReport});
+
+        await page.addScriptTag({
+          path: require.resolve('@qualweb/act-rules')
+        })
+        sourceHtml.html.parsed = [];
+        const actReport = await page.evaluate((sourceHtml, stylesheets) => {
+          // @ts-ignore 
+          const act = new ACTRules.ACTRules();
+          // @ts-ignore 
+          const report = act.execute(sourceHtml, new QWPage.QWPage(document), stylesheets);
+          return report;
+          // @ts-ignore 
+        }, sourceHtml, stylesheets);
+        client.emit('moduleEnd', { module: 'act-rules', report: actReport });
       }
 
-      if(data.modules['html']) {
+      if (data.modules['html']) {
         client.emit('moduleStart', 'html-techniques');
-        const html = new HTMLTechniques({techniques: this.htmlTechniques});
-        const htmlReport = await html.execute(page);
-        client.emit('moduleEnd', {module: 'html-techniques', report: htmlReport});
+
+        await page.addScriptTag({
+          path: require.resolve('@qualweb/html-techniques')
+        })
+        const url = page.url();
+        const urlVal = await page.evaluate(() => {
+          return location.href;
+        });
+    
+        const validationUrl = endpoint + encodeURIComponent(urlVal);
+    
+        let response, validation;
+    
+        try {
+          response = await fetch(validationUrl);
+        } catch (err) {
+          console.log(err);
+        }
+        if (response && response.status === 200)
+          validation = JSON.parse(await response.json());
+        const newTabWasOpen = await BrowserUtils.detectIfUnwantedTabWasOpened(page.browser(), url);
+        const htmlReport = await page.evaluate((newTabWasOpen, validation, options) => {
+          // @ts-ignore 
+          const html = new HTMLTechniques.HTMLTechniques();
+          // @ts-ignore 
+          const report = html.execute(new QWPage.QWPage(document), newTabWasOpen, validation);
+          return report;
+          // @ts-ignore 
+        }, newTabWasOpen, validation, options['html-techniques']);
+        client.emit('moduleEnd', { module: 'html-techniques', report: htmlReport });
       }
 
-      if(data.modules['css']) {
+      if (data.modules['css']) {
         client.emit('moduleStart', 'css-techniques');
         const css = new CSSTechniques();
         const cssReport = await css.execute(stylesheets, mappedDOM);
-        client.emit('moduleEnd', {module: 'css-techniques', report: cssReport});
+        client.emit('moduleEnd', { module: 'css-techniques', report: cssReport });
       }
 
-      if(data.modules['bp']) {
+      if (data.modules['bp']) {
         client.emit('moduleStart', 'best-practices');
-        const bp = new BestPractices();
-        const bpReport = await bp.execute(page, stylesheets);
-        client.emit('moduleEnd', {module: 'best-practices', report: bpReport});
+        await page.addScriptTag({
+          path: require.resolve('@qualweb/best-practices')//'../../../node_modules/@qualweb/best-practices/dist/bp.js'
+        })
+        const bpReport = await page.evaluate(() => {
+          // @ts-ignore 
+          const bp = new BestPractices.BestPractices();
+          // @ts-ignore 
+          const report = bp.execute(new QWPage.QWPage(document));
+          return report;
+        });
+        client.emit('moduleEnd', { module: 'best-practices', report: bpReport });
       }
 
       client.emit('prepare-data', true);
