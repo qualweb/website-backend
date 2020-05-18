@@ -5,6 +5,8 @@ import { randomBytes } from 'crypto';
 import { getDom } from './getDom';
 import { CSSTechniques } from '@qualweb/css-techniques';
 import { BrowserUtils } from '@qualweb/util';
+const fetch = require("node-fetch");
+
 let endpoint = 'http://194.117.20.242/validate/';
 
 
@@ -177,14 +179,14 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
         if (response && response.status === 200)
           validation = JSON.parse(await response.json());
         const newTabWasOpen = await BrowserUtils.detectIfUnwantedTabWasOpened(page.browser(), url);
-        const htmlReport = await page.evaluate((newTabWasOpen, validation, options) => {
+        const htmlReport = await page.evaluate((newTabWasOpen, validation) => {
           // @ts-ignore 
           const html = new HTMLTechniques.HTMLTechniques();
           // @ts-ignore 
           const report = html.execute(new QWPage.QWPage(document), newTabWasOpen, validation);
           return report;
           // @ts-ignore 
-        }, newTabWasOpen, validation, options['html-techniques']);
+        }, newTabWasOpen, validation);
         client.emit('moduleEnd', { module: 'html-techniques', report: htmlReport });
       }
 
