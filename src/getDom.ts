@@ -5,6 +5,7 @@ import * as htmlparser2 from "htmlparser2";
 //import * as request from "request";
 import * as CSSselect from 'css-select';
 import * as puppeteer from 'puppeteer';
+const fetch = require("node-fetch");
 
 async function parseStylesheets(plainStylesheets) {
   
@@ -57,16 +58,10 @@ function parseHTML(html) {
 }
 
 //async function getSourceHTML(url, options) {
-async function getSourceHTML(html: string) {
-    /*const headers = {
-        'url': url,
-        'headers': {
-            'User-Agent': options ? options.userAgent ? options.userAgent : options.mobile ? constants.DEFAULT_MOBILE_USER_AGENT : constants.DEFAULT_DESKTOP_USER_AGENT : constants.DEFAULT_DESKTOP_USER_AGENT
-        }
-    };
-    const data = await getRequestData(headers);
-    const sourceHTML = data['body'].toString().trim();*/
-    const sourceHTML: string = html.trim();
+async function getSourceHTML(url) {
+    const response = await fetch(url);
+    //const data = await response.text();
+    const sourceHTML = (await response.text()).trim();
     const parsedHTML = parseHTML(sourceHTML);
     const elements = CSSselect('*', parsedHTML);
     let title = '';
@@ -210,7 +205,7 @@ export async function getDom(browser,url) {
     });
 
     if (response) {
-        const sourceHtml = await getSourceHTML(await response.text());
+        const sourceHtml = await getSourceHTML(url);
         const styles = CSSselect('style', sourceHtml.html.parsed);
         let k = 0;
         for (const style of styles || []) {
