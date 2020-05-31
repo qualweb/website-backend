@@ -21,15 +21,13 @@
     "test:e2e": "jest --config ./test/jest-e2e.json"
   },
   "dependencies": {
+    "@qualweb/dom": "^0.1.2",
+    "@qualweb/evaluation": "^0.1.5",
     "@nestjs/common": "^7.0.0",
     "@nestjs/core": "^7.0.0",
     "@nestjs/platform-express": "^7.0.0",
     "@nestjs/platform-socket.io": "^7.0.3",
     "@nestjs/websockets": "^7.0.3",
-    "@qualweb/act-rules": "^0.4.5",
-    "@qualweb/best-practices": "^0.4.1",
-    "@qualweb/css-techniques": "^0.3.6",
-    "@qualweb/html-techniques": "^0.4.1",
     "compression": "^1.7.4",
     "css": "^2.2.4",
     "css-select": "^2.1.0",
@@ -38,12 +36,13 @@
     "htmlparser2": "^4.1.0",
     "lodash.clone": "^4.5.0",
     "node-fetch": "^2.6.0",
-    "puppeteer": "^2.1.1",
+    "puppeteer": "^3.0.4",
     "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.2",
     "rxjs": "^6.5.4"
   },
   "devDependencies": {
+    "@types/puppeteer": "^3.0.0",
     "@nestjs/cli": "^7.0.0",
     "@nestjs/schematics": "^7.0.0",
     "@nestjs/testing": "^7.0.0",
