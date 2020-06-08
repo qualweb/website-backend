@@ -4,7 +4,6 @@ import * as puppeteer from 'puppeteer';
 import { Dom } from '@qualweb/dom';
 import { Evaluation } from '@qualweb/evaluation';
 
-
 @WebSocketGateway()
 export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
@@ -46,14 +45,15 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
     //const url = this.normalizeUrl(decodeURIComponent(data.url));
     const url = decodeURIComponent(data.url);
 
-
-
     try {
       let dom = new Dom();
       let { sourceHtml, page, stylesheets, mappedDOM } = await dom.getDOM(this.browser, {}, url, "");
       let evaluation = new Evaluation();
-
-      client.emit('evaluator', await evaluation.getEvaluator(page, sourceHtml, stylesheets, url));
+      let evaluator = await evaluation.getEvaluator(page, sourceHtml, stylesheets, url);
+      evaluator.page.dom.processed = [];
+      evaluator.page.dom.stylesheets = [];
+      evaluator.page.dom.source.html.parsed = [];
+      client.emit('evaluator', evaluator);
 
       await evaluation.addQWPage(page);
 
