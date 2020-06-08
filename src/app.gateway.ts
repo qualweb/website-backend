@@ -50,34 +50,35 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
     try {
       let dom = new Dom();
-        let { sourceHtml, page, stylesheets, mappedDOM } = await dom.getDOM(this.browser, {}, url, "");
-        let evaluation = new Evaluation();
+      let { sourceHtml, page, stylesheets, mappedDOM } = await dom.getDOM(this.browser, {}, url, "");
+      let evaluation = new Evaluation();
 
-      client.emit('evaluator',await evaluation.getEvaluator(page,sourceHtml,stylesheets,url));
+      client.emit('evaluator', await evaluation.getEvaluator(page, sourceHtml, stylesheets, url));
 
       await evaluation.addQWPage(page);
 
       if (data.modules['act']) {
         client.emit('moduleStart', 'act-rules');
-       let actReport = await evaluation.executeACT(page,sourceHtml,stylesheets,{})
+        let actReport = await evaluation.executeACT(page, sourceHtml, stylesheets, {})
         client.emit('moduleEnd', { module: 'act-rules', report: actReport });
       }
 
       if (data.modules['html']) {
         client.emit('moduleStart', 'html-techniques');
-        let htmlReport = await evaluation.executeHTML(page,{});
+        // @ts-ignore
+        let htmlReport = await evaluation.executeHTML(page, { techniques: this.htmlTechniques });
         client.emit('moduleEnd', { module: 'html-techniques', report: htmlReport });
       }
 
       if (data.modules['css']) {
         client.emit('moduleStart', 'css-techniques');
-        let cssReport = await evaluation.executeCSS(stylesheets,mappedDOM,{});
+        let cssReport = await evaluation.executeCSS(stylesheets, mappedDOM, {});
         client.emit('moduleEnd', { module: 'css-techniques', report: cssReport });
       }
 
       if (data.modules['bp']) {
         client.emit('moduleStart', 'best-practices');
-        let bpReport = await evaluation.executeBP(page,{});
+        let bpReport = await evaluation.executeBP(page, {});
         client.emit('moduleEnd', { module: 'best-practices', report: bpReport });
       }
 
