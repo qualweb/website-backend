@@ -72,7 +72,7 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
       if (data.modules['css']) {
         client.emit('moduleStart', 'css-techniques');
-        let cssReport = await evaluation.executeCSS(stylesheets, mappedDOM, {});
+        let cssReport = await evaluation.executeCSS(page, stylesheets, mappedDOM, {});
         client.emit('moduleEnd', { module: 'css-techniques', report: cssReport });
       }
 
