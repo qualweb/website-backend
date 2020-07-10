@@ -47,9 +47,9 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
     try {
       let dom = new Dom();
-      let { sourceHtml, page, stylesheets, mappedDOM } = await dom.getDOM(this.browser, {}, url, "");
+      let { sourceHtml, page } = await dom.getDOM(this.browser, {}, url, "");
       let evaluation = new Evaluation();
-      let evaluator = await evaluation.getEvaluator(page, sourceHtml, stylesheets, url);
+      let evaluator = await evaluation.getEvaluator(page, sourceHtml, [], url);
       evaluator.page.dom.processed = [];
       evaluator.page.dom.stylesheets = [];
       evaluator.page.dom.source.html.parsed = [];
@@ -59,7 +59,7 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
       if (data.modules['act']) {
         client.emit('moduleStart', 'act-rules');
-        let actReport = await evaluation.executeACT(page, sourceHtml, stylesheets, {})
+        let actReport = await evaluation.executeACT(page, sourceHtml, [], {})
         client.emit('moduleEnd', { module: 'act-rules', report: actReport });
       }
 
@@ -72,7 +72,7 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
       if (data.modules['css']) {
         client.emit('moduleStart', 'css-techniques');
-        let cssReport = await evaluation.executeCSS(page, stylesheets, mappedDOM, {});
+        let cssReport = await evaluation.executeCSS(page, [], [], {});
         client.emit('moduleEnd', { module: 'css-techniques', report: cssReport });
       }
 
