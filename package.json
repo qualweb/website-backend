@@ -22,7 +22,7 @@
   },
   "dependencies": {
     "@qualweb/dom": "^0.1.14",
-    "@qualweb/evaluation": "^0.1.20",
+    "@qualweb/evaluation": "^0.1.22",
     "@nestjs/common": "^7.0.0",
     "@nestjs/core": "^7.0.0",
     "@nestjs/platform-express": "^7.0.0",
@@ -36,7 +36,7 @@
     "htmlparser2": "^4.1.0",
     "lodash.clone": "^4.5.0",
     "node-fetch": "^2.6.0",
-    "puppeteer": "^3.0.4",
+    "puppeteer": "^5.0.0",
     "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.2",
     "rxjs": "^6.5.4"
