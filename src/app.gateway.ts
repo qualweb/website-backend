@@ -59,7 +59,7 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
       if (data.modules['act']) {
         client.emit('moduleStart', 'act-rules');
-        let actReport = await evaluation.executeACT(page, sourceHtml, [], {})
+        let actReport = await evaluation.executeACT(page, sourceHtml, [], {});
         client.emit('moduleEnd', { module: 'act-rules', report: actReport });
       }
 
