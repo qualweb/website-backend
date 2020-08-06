@@ -76,11 +76,11 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
         client.emit('moduleEnd', { module: 'css-techniques', report: cssReport });
       }
 
-      if (data.modules['bp']) {
+      /*if (data.modules['bp']) {
         client.emit('moduleStart', 'best-practices');
         let bpReport = await evaluation.executeBP(page, {});
         client.emit('moduleEnd', { module: 'best-practices', report: bpReport });
-      }
+      }*/
 
       client.emit('prepare-data', true);
 
