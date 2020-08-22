@@ -1,7 +1,4 @@
-/dist
-/node_modules
-/.yalc
-yalc.lock
+.idea/
+dist/
+node_modules/
 package-lock.json
-.idea
-.idea/*
