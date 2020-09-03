@@ -47,7 +47,7 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
     try {
       let dom = new Dom();
-      let { sourceHtml, page } = await dom.getDOM(this.browser, {}, url, "");
+      let { sourceHtml, page, validation } = await dom.getDOM(this.browser, {}, url, "");
       let evaluation = new Evaluation();
       let evaluator = await evaluation.getEvaluator(page, sourceHtml, [], url);
       evaluator.page.dom.processed = [];
@@ -66,7 +66,7 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
       if (data.modules['html']) {
         client.emit('moduleStart', 'html-techniques');
         // @ts-ignore
-        let htmlReport = await evaluation.executeHTML(page, { techniques: this.htmlTechniques });
+        let htmlReport = await evaluation.executeHTML(page, { techniques: this.htmlTechniques }, validation);
         client.emit('moduleEnd', { module: 'html-techniques', report: htmlReport });
       }
 
