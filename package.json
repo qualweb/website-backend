@@ -28,7 +28,7 @@
     "@nestjs/platform-socket.io": "^7.0.3",
     "@nestjs/websockets": "^7.0.3",
     "@qualweb/dom": "^0.1.26",
-    "@qualweb/evaluation": "^0.1.43",
+    "@qualweb/evaluation": "^0.1.44",
     "compression": "^1.7.4",
     "css": "^2.2.4",
     "css-select": "^2.1.0",
