@@ -1,6 +1,6 @@
 import { WebSocketServer, ConnectedSocket, MessageBody, SubscribeMessage, WebSocketGateway, OnGatewayConnection, OnGatewayDisconnect } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
-import * as puppeteer from 'puppeteer';
+import puppeteer from 'puppeteer'
 import { Dom } from '@qualweb/dom';
 import { Evaluation } from '@qualweb/evaluation';
 
