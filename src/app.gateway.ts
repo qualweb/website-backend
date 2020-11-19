@@ -10,7 +10,7 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer()
   server: Server;
   browser: puppeteer.Browser | null = null;
-  htmlTechniques: string[] = [];
+  //htmlTechniques: string[] = [];
 
   constructor() {
     this.init();
@@ -19,12 +19,12 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
   private async init() {
     this.browser = await puppeteer.launch();
 
-    let noHtml = [12, 18, 20, 21, 31, 35, 36];
+    /*let noHtml = [12, 18, 20, 21, 31, 35, 36];
     for (let i = 1; i <= 43; i++) {
       if (!noHtml.includes(i)) {
         this.htmlTechniques.push('QW-HTML-T'.concat(i.toString()));
       }
-    }
+    }*/
 
   }
 
@@ -49,9 +49,7 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
       let dom = new Dom();
       let { sourceHtml, page, validation } = await dom.getDOM(this.browser, {}, url, "");
       let evaluation = new Evaluation();
-      let evaluator = await evaluation.getEvaluator(page, sourceHtml, [], url);
-      evaluator.page.dom.processed = [];
-      evaluator.page.dom.stylesheets = [];
+      let evaluator = await evaluation.getEvaluator(page, sourceHtml, url);
       evaluator.page.dom.source.html.parsed = [];
       client.emit('evaluator', evaluator);
 
@@ -59,24 +57,24 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
       if (data.modules['act']) {
         client.emit('moduleStart', 'act-rules');
-        let actReport = await evaluation.executeACT(page, sourceHtml, [], {});
+        let actReport = await evaluation.executeACT(page, sourceHtml, {});
         client.emit('moduleEnd', { module: 'act-rules', report: actReport });
       }
 
-      if (data.modules['html']) {
-        client.emit('moduleStart', 'html-techniques');
+      if (data.modules['wcag']) {
+        client.emit('moduleStart', 'wcag-techniques');
         // @ts-ignore
-        let htmlReport = await evaluation.executeHTML(page, { techniques: this.htmlTechniques }, validation);
-        client.emit('moduleEnd', { module: 'html-techniques', report: htmlReport });
+        let htmlReport = await evaluation.executeWCAG(page, {}, validation);
+        client.emit('moduleEnd', { module: 'wcag-techniques', report: htmlReport });
       }
 
-      if (data.modules['css']) {
+      /*if (data.modules['css']) {
         client.emit('moduleStart', 'css-techniques');
         let cssReport = await evaluation.executeCSS(page, [], [], {});
         client.emit('moduleEnd', { module: 'css-techniques', report: cssReport });
       }
 
-      /*if (data.modules['bp']) {
+      if (data.modules['bp']) {
         client.emit('moduleStart', 'best-practices');
         let bpReport = await evaluation.executeBP(page, {});
         client.emit('moduleEnd', { module: 'best-practices', report: bpReport });
