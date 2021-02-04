@@ -3,6 +3,7 @@ import { Server, Socket } from 'socket.io';
 import puppeteer from 'puppeteer'
 import { Dom } from '@qualweb/dom';
 import { Evaluation } from '@qualweb/evaluation';
+import { QualwebOptions } from '@qualweb/core';
 
 @WebSocketGateway()
 export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
@@ -10,22 +11,9 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer()
   server: Server;
   browser: puppeteer.Browser | null = null;
-  //htmlTechniques: string[] = [];
 
   constructor() {
-    this.init();
-  }
-
-  private async init() {
-    this.browser = await puppeteer.launch();
-
-    /*let noHtml = [12, 18, 20, 21, 31, 35, 36];
-    for (let i = 1; i <= 43; i++) {
-      if (!noHtml.includes(i)) {
-        this.htmlTechniques.push('QW-HTML-T'.concat(i.toString()));
-      }
-    }*/
-
+    puppeteer.launch().then(browser => this.browser = browser);
   }
 
   async handleConnection() {
@@ -36,20 +24,21 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   }
 
-  private normalizeUrl(url: string): string {
-    return url.startsWith('http') ? url : 'http://' + url;
-  }
-
   @SubscribeMessage('evaluate')
   async startEvaluation(@MessageBody() data: any, @ConnectedSocket() client: Socket): Promise<any> {
-    //const url = this.normalizeUrl(decodeURIComponent(data.url));
     const url = decodeURIComponent(data.url);
 
+    const dom = new Dom();
     try {
-      let dom = new Dom();
-      let { sourceHtml, page, validation } = await dom.getDOM(this.browser, {}, url, "");
-      let evaluation = new Evaluation();
-      let evaluator = await evaluation.getEvaluator(page, sourceHtml, url);
+      const options: QualwebOptions = {
+        execute: {
+          act: !!data.modules['act'],
+          wcag: !!data.modules['wcag']
+        }
+      };
+      const { sourceHtml, page, validation } = await dom.getDOM(this.browser, options, url, "");
+      const evaluation = new Evaluation();
+      const evaluator = await evaluation.getEvaluator(page, sourceHtml, url);
       evaluator.page.dom.source.html.parsed = [];
       client.emit('evaluator', evaluator);
 
@@ -57,14 +46,14 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
       if (data.modules['act']) {
         client.emit('moduleStart', 'act-rules');
-        let actReport = await evaluation.executeACT(page, sourceHtml, {});
+        const actReport = await evaluation.executeACT(page, sourceHtml, {});
         client.emit('moduleEnd', { module: 'act-rules', report: actReport });
       }
 
       if (data.modules['wcag']) {
         client.emit('moduleStart', 'wcag-techniques');
         // @ts-ignore
-        let htmlReport = await evaluation.executeWCAG(page, {}, validation);
+        const htmlReport = await evaluation.executeWCAG(page, {}, validation);
         client.emit('moduleEnd', { module: 'wcag-techniques', report: htmlReport });
       }
 
@@ -88,6 +77,8 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
     } catch (err) {
       console.error(err);
       client.emit('errorHandle', err.toString());
+    } finally {
+      await dom.close();
     }
   }
 }
