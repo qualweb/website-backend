@@ -7,12 +7,40 @@ export class AppService {
     const qualweb = new QualWeb();
 
     await qualweb.start();
-    const reports = await qualweb.evaluate(options);
-    await qualweb.stop();
+
+    let reports = null;
+    let error = null;
+    try {
+      reports = await this.timeout(qualweb, options);
+    } catch (err) {
+      error = err;
+    } finally {
+      await qualweb.stop();
+    }
+
+    if (error) {
+      throw error;
+    }
 
     const report = reports[decodeURIComponent(options.url)];
     delete report.system.page.dom.source.html.parsed;
 
     return report;
+  }
+
+  private timeout(
+    qualweb: QualWeb,
+    options: QualwebOptions,
+  ): Promise<EvaluationReport[]> {
+    return new Promise<EvaluationReport[]>((resolve: any, reject: any) => {
+      const timeout = setTimeout(() => {
+        reject('Time exceeded for evaluation');
+      }, 1000 * 60 * 2);
+
+      qualweb.evaluate(options).then((reports) => {
+        clearTimeout(timeout);
+        resolve(reports);
+      });
+    });
   }
 }

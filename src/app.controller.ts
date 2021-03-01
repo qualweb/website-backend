@@ -6,7 +6,7 @@ import { AppService } from './app.service';
 export class AppController {
   constructor(private readonly appService: AppService) {}
 
-  @Post(':url')
+  @Post('url')
   async evaluateUrl(@Request() req: any): Promise<any> {
     try {
       const options: QualwebOptions = {
