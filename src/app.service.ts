@@ -22,10 +22,7 @@ export class AppService {
       throw error;
     }
 
-    const report = reports[decodeURIComponent(options.url)];
-    delete report.system.page.dom.source.html.parsed;
-
-    return report;
+    return reports[decodeURIComponent(options.url)];
   }
 
   private timeout(

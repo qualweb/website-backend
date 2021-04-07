@@ -15,6 +15,7 @@ export class AppController {
           act: !!req.body?.act,
           wcag: !!req.body?.wcag,
         },
+        validator: 'http://localhost:5555/url/'
       };
 
       const report = await this.appService.evaluate(options);
