@@ -32,7 +32,7 @@ export class AppService {
     return new Promise<EvaluationReport[]>((resolve: any, reject: any) => {
       const timeout = setTimeout(() => {
         reject('Time exceeded for evaluation');
-      }, 1000 * 60 * 2);
+      }, 1000 * 60);
 
       qualweb.evaluate(options).then((reports) => {
         clearTimeout(timeout);
