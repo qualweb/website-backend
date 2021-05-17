@@ -4,14 +4,14 @@ import { QualWeb, QualwebOptions, EvaluationReport } from '@qualweb/core';
 @Injectable()
 export class AppService {
   async evaluate(options: QualwebOptions): Promise<EvaluationReport> {
-    const qualweb = new QualWeb();
+    const qualweb = new QualWeb({ adBlock: true, stealth: true });
 
-    await qualweb.start();
+    await qualweb.start({ timeout: 1000 * 60 * 2 }, { args: ['--no-sandbox', '--ignore-certificate-errors'] });
 
     let reports = null;
     let error = null;
     try {
-      reports = await this.timeout(qualweb, options);
+      reports = await qualweb.evaluate(options); //this.timeout(qualweb, options);
     } catch (err) {
       error = err;
     } finally {
