@@ -17,7 +17,8 @@ export class AppController {
         },
         "wcag-techniques": {
           exclude: ['QW-WCAG-T16']
-        }
+        },
+        "waitUntil": ["load", "networkidle0"]
       };
 
       const report = await this.appService.evaluate(options);
