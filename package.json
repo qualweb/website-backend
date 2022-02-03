@@ -1,7 +1,7 @@
 {
   "name": "website-backend",
-  "version": "0.5.9",
-  "description": "QualWeb backend server",
+  "version": "0.5.10",
+  "description": "QualWeb Website Backend Server",
   "author": "João Afonso Vicente",
   "license": "ISC",
   "main": "dist/index.ts",
