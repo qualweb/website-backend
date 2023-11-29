@@ -64,6 +64,6 @@ EXPOSE 3000
 
 RUN git clone https://github.com/qualweb/website-backend.git \
     && cd website-backend \
-    && npm i --production
+    && npm ci --production
 
 CMD cd website-backend && pm2 start dist/main.js --name qualweb-backend -i 4 && pm2 save && pm2 log
