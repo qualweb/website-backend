@@ -25,7 +25,7 @@
     "@nestjs/core": "^9.3.9",
     "@nestjs/platform-express": "^9.3.9",
     "@nestjs/platform-socket.io": "^9.3.9",
-    "@qualweb/core": "0.7.62",
+    "@qualweb/core": "0.7.63",
     "compression": "^1.7.4",
     "express-rate-limit": "^5.5.1",
     "helmet": "6.0.1",
