@@ -26,6 +26,7 @@ export class AppController {
 
       return { status: 1, message: 'Evaluation done successfully.', report };
     } catch (err) {
+      console.error(err);
       return { status: 2, message: 'An error has ocurred while evaluating.' };
     }
   }
