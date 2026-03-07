@@ -1,11 +1,11 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import helmet from 'helmet';
 import compression from 'compression';
 import rateLimit from 'express-rate-limit';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, { cors: true });
+  const helmet = (await import('helmet')).default;
   app.use(helmet());
   app.use(compression());
   app.use(

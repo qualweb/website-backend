@@ -14,30 +14,36 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AppController = void 0;
 const common_1 = require("@nestjs/common");
+const act_rules_1 = require("@qualweb/act-rules");
+const wcag_techniques_1 = require("@qualweb/wcag-techniques");
 const app_service_1 = require("./app.service");
 let AppController = class AppController {
+    appService;
     constructor(appService) {
         this.appService = appService;
     }
     async evaluateUrl(req) {
-        var _a, _b;
         try {
+            const modules = [];
+            if (req.body?.act)
+                modules.push(new act_rules_1.ACTRules());
+            if (req.body?.wcag)
+                modules.push(new wcag_techniques_1.WCAGTechniques());
             const options = {
                 url: decodeURIComponent(req.body.url),
-                execute: {
-                    act: !!((_a = req.body) === null || _a === void 0 ? void 0 : _a.act),
-                    wcag: !!((_b = req.body) === null || _b === void 0 ? void 0 : _b.wcag),
-                },
                 waitUntil: ['load', 'networkidle0'],
+                modules
             };
             const report = await this.appService.evaluate(options);
             return { status: 1, message: 'Evaluation done successfully.', report };
         }
         catch (err) {
+            console.error(err);
             return { status: 2, message: 'An error has ocurred while evaluating.' };
         }
     }
 };
+exports.AppController = AppController;
 __decorate([
     (0, common_1.Post)('url'),
     __param(0, (0, common_1.Request)()),
@@ -45,9 +51,8 @@ __decorate([
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
 ], AppController.prototype, "evaluateUrl", null);
-AppController = __decorate([
+exports.AppController = AppController = __decorate([
     (0, common_1.Controller)('app'),
     __metadata("design:paramtypes", [app_service_1.AppService])
 ], AppController);
-exports.AppController = AppController;
 //# sourceMappingURL=app.controller.js.map

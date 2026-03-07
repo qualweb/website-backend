@@ -62,8 +62,9 @@ RUN npm i -g pm2 && pm2 startup
 
 EXPOSE 3000
 
-RUN git clone https://github.com/qualweb/website-backend.git \
-    && cd website-backend \
-    && npm ci --production
+COPY package*.json .
+RUN npm ci
+COPY . .
+RUN npm run build
 
-CMD cd website-backend && pm2 start dist/main.js --name qualweb-backend -i 4 && pm2 save && pm2 log
+CMD ["pm2-runtime", "dist/main.js", "--name", "qualweb-backend", "-i", "4"]
