@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import { QualWeb, QualwebOptions, EvaluationReport } from '@qualweb/core';
+import { QualWeb, QualwebOptions, QualwebReport } from '@qualweb/core';
 
 @Injectable()
 export class AppService {
-  async evaluate(options: QualwebOptions): Promise<EvaluationReport> {
+  async evaluate(options: QualwebOptions): Promise<QualwebReport> {
     const qualweb = new QualWeb({ adBlock: false, stealth: true });
 
     await qualweb.start(

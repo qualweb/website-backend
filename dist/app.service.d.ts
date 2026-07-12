@@ -1,4 +1,4 @@
-import { QualwebOptions, EvaluationReport } from '@qualweb/core';
+import { QualwebOptions, QualwebReport } from '@qualweb/core';
 export declare class AppService {
-    evaluate(options: QualwebOptions): Promise<EvaluationReport>;
+    evaluate(options: QualwebOptions): Promise<QualwebReport>;
 }
