@@ -3,6 +3,15 @@ import { INestApplication } from '@nestjs/common';
 import request from 'supertest';
 import { AppModule } from './../src/app.module';
 import { AppService } from './../src/app.service';
+import { readFileSync } from 'fs';
+import { dirname, join } from 'path';
+
+const coreVersion = JSON.parse(
+  readFileSync(
+    join(dirname(require.resolve('@qualweb/core')), '..', 'package.json'),
+    'utf8',
+  ),
+).version;
 
 describe('AppController (e2e)', () => {
   let app: INestApplication;
@@ -38,6 +47,15 @@ describe('AppController (e2e)', () => {
         expect(res.body.status).toBe(1);
         expect(res.body.message).toBe('Evaluation done successfully.');
         expect(res.body.report).toBeDefined();
+      });
+  });
+
+  it('/version (GET)', () => {
+    return request(app.getHttpServer())
+      .get('/version')
+      .expect(200)
+      .expect((res) => {
+        expect(res.body).toEqual({ version: coreVersion });
       });
   });
 
